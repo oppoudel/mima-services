@@ -1,7 +1,15 @@
 import React, { Component } from "react";
-import { Container, Segment, Input, Grid, Select } from "semantic-ui-react";
+import {
+  Container,
+  Segment,
+  Input,
+  Grid,
+  Select,
+  Card
+} from "semantic-ui-react";
 import appService from "./appService";
 import AttributeList from "./components/AttributeList";
+import MapboxMap from "./components/MapboxMap";
 
 const serviceOptions = [
   { key: "a", text: "All Services", value: "all" },
@@ -56,6 +64,9 @@ class App extends Component {
 
     return (
       <Container style={{ marginTop: "2em" }}>
+        <Card fluid style={{ marginBottom: "3em" }}>
+          <MapboxMap features={filteredFeatures} />
+        </Card>
         <Grid>
           <Grid.Row>
             <Grid.Column width={12}>
@@ -80,7 +91,7 @@ class App extends Component {
 
         {filteredFeatures.map(feature => (
           <Segment key={feature.properties.ID}>
-            <AttributeList attributes={feature.properties} />
+            <AttributeList info={feature.properties} />
           </Segment>
         ))}
       </Container>
