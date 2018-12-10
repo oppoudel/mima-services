@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { throttle, debounce } from "throttle-debounce";
 import {
   Container,
   Segment,
@@ -30,28 +31,6 @@ class App extends Component {
     selected: "",
     filteredFeatures: []
   };
-  handleInputChange = e => {
-    const { features, selected } = this.state;
-    this.setState({
-      query: e.target.value,
-      filteredFeatures: features
-        .filter(feature =>
-          feature.properties.Description.includes(e.target.value)
-        )
-        .filter(f => f.properties.Tag.includes(selected))
-    });
-  };
-  handleSelectChange = (e, data) => {
-    const { features, query } = this.state;
-
-    const val = data.value === "all" ? "" : data.value;
-    this.setState({
-      selected: val,
-      filteredFeatures: features
-        .filter(f => f.properties.Tag.includes(val))
-        .filter(feature => feature.properties.Description.includes(query))
-    });
-  };
   async componentDidMount() {
     const results = await appService.getFeatures();
     this.setState({
@@ -59,11 +38,44 @@ class App extends Component {
       filteredFeatures: results.features
     });
   }
+  changeQuery = event => {
+    this.setState({ query: event.target.value }, () => {
+      const q = this.state.query;
+      if (q.length < 5) {
+        throttle(100, this.filterResults(q));
+      } else {
+        debounce(100, this.filterResults(q));
+      }
+    });
+  };
+  filterResults = query => {
+    const { features, selected } = this.state;
+    this.setState({
+      filteredFeatures: this.filterFeatures(features, query, selected)
+    });
+  };
+
+  handleSelectChange = (e, data) => {
+    const { features, query } = this.state;
+    const val = data.value === "all" ? "" : data.value;
+    this.setState({
+      selected: val,
+      filteredFeatures: this.filterFeatures(features, query, val)
+    });
+  };
+  filterFeatures = (features, query, selected) => {
+    return features
+      .filter(feature =>
+        feature.properties.Description.toLowerCase().includes(query)
+      )
+      .filter(f => f.properties.Tag.includes(selected));
+  };
+
   render() {
     const { query, filteredFeatures } = this.state;
 
     return (
-      <Container style={{ marginTop: "2em" }}>
+      <Container style={{ marginTop: "2em", marginBottom: "2em" }}>
         <Card fluid style={{ marginBottom: "3em" }}>
           <MapboxMap features={filteredFeatures} />
         </Card>
@@ -75,7 +87,7 @@ class App extends Component {
                 fluid
                 placeholder="Search Services ..."
                 value={query}
-                onChange={this.handleInputChange}
+                onChange={this.changeQuery}
               />
             </Grid.Column>
             <Grid.Column width={4}>
