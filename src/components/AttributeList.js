@@ -15,7 +15,7 @@ export default function AttributeList({ info }) {
           <List.Icon name="map marker alternate" />
           <List.Content>
             <List.Header>
-              {info.Address}, {info.Zipcode}
+              {info.Address}, {info.City}, {info.State} {info.Zipcode}
             </List.Header>
           </List.Content>
         </List.Item>
@@ -37,6 +37,12 @@ export default function AttributeList({ info }) {
       <List.Item>
         <List.Icon name="content" />
         <List.Content>{info.Description}</List.Content>
+      </List.Item>
+      <List.Item>
+        <List.Icon name="linkify" />
+        <List.Content>
+          <a href={info.URL}>{info.Provider}</a>
+        </List.Content>
       </List.Item>
     </List>
   );
