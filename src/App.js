@@ -65,9 +65,12 @@ class App extends Component {
   };
   filterFeatures = (features, query, selected) => {
     return features
-      .filter(feature =>
-        feature.properties.Description.toLowerCase().includes(query)
-      )
+      .filter(f => {
+        const lowerCaseSearchText = (
+          f.properties.Description + f.properties.Provider
+        ).toLowerCase();
+        return lowerCaseSearchText.includes(query.toLowerCase());
+      })
       .filter(f => f.properties.Tag.includes(selected));
   };
 
